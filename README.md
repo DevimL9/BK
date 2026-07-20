@@ -1,32 +1,86 @@
-# React + TypeScript + Vite
+# DevimL 个人作品集
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+这是一个使用 React、TypeScript 和 Vite 构建的个人作品集网站，用于展示个人技能、项目经历、职业经历和联系方式。
 
-Currently, two official plugins are available:
+## 在线访问
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 网站地址：[https://deviml.ccwu.cc](https://deviml.ccwu.cc)
+- GitHub 主页：[https://github.com/DevimL9](https://github.com/DevimL9)
 
-## React Compiler
+## 主要功能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 响应式单页布局，适配桌面端和移动端
+- 导航栏定位与平滑滚动
+- 首页打字机动画和粒子背景
+- 技能、项目、职业经历和合作评价展示
+- 滚动进入动画与交互反馈
+- GitHub、邮箱等外部联系方式
+- 联系表单输入校验
 
-## Expanding the Oxlint configuration
+> 联系表单目前只包含前端校验和提交成功状态，尚未接入邮件服务或后端接口。
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 技术栈
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+- React 18
+- TypeScript
+- Vite 6
+- Tailwind CSS
+- Framer Motion
+- Lucide React
+
+## 本地运行
+
+请先安装 Node.js 18 或更高版本。
+
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+启动后，根据终端输出访问本地开发地址。
+
+## 生产构建
+
+```bash
+npm run build
+```
+
+构建完成后，生产文件会生成在 `dist` 目录中。将 `dist` 目录中的全部内容上传到 Web 服务器站点根目录即可部署。
+
+如需在本地预览生产构建：
+
+```bash
+npm run preview
+```
+
+## 项目结构
+
+```text
+portfolio/
+├─ public/                 静态资源
+├─ src/
+│  ├─ components/         页面组件
+│  ├─ data/               个人资料和展示内容
+│  ├─ hooks/              通用 React Hooks
+│  ├─ App.tsx             页面结构入口
+│  └─ main.tsx            应用入口
+├─ index.html
+├─ package.json
+├─ tailwind.config.js
+└─ vite.config.ts
+```
+
+## 修改个人信息
+
+个人名称、邮箱、GitHub 地址、技能、项目和经历等内容集中在：
+
+```text
+src/data/content.ts
+```
+
+修改后重新执行 `npm run build`，并替换服务器上的 `dist` 内容。
+
+## 联系方式
+
+- GitHub：[DevimL9](https://github.com/DevimL9)
+- 邮箱：deviml99987@gmail.com
