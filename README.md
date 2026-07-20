@@ -78,7 +78,6 @@ portfolio/
 src/data/content.ts
 ```
 
-修改后重新执行 `npm run build`，并替换服务器上的 `dist` 内容。
 
 ## 联系方式
 
