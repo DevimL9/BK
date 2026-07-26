@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消息管理 - Portfolio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #00f0ff;
+      --primary-dark: #00c0cc;
+      --danger: #ff4444;
+      --success: #00ff88;
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-input: #1a1a25;
+      --text: #ffffff;
+      --text-muted: #8888aa;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .unread-badge {
+      background: var(--primary);
+      color: var(--bg-dark);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--bg-dark);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #cc0000;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* Login Page */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    .login-box p {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .stat-card .label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: var(--bg-dark);
+      border-color: var(--primary);
+    }
+
+    /* Messages List */
+    .messages-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+
+    .message-card.unread {
+      border-left: 3px solid var(--primary);
+    }
+
+    .message-card:hover {
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .message-sender {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #b000ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .sender-info .name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .sender-info .email {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .message-time {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .message-body {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .empty-state p {
+      font-size: 16px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--success);
+      border-radius: 10px;
+      color: var(--success);
+      font-size: 14px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Password Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .modal h3 {
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .message-header {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="login-box">
+      <h2>🔐 消息管理</h2>
+      <p>请输入管理员账号登录</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" id="username" placeholder="admin" required>
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="password" placeholder="请输入密码" required>
+        </div>
+        <button type="submit" class="btn btn-primary login-btn">登录</button>
+        <div id="loginError" class="error-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="dashboard" style="display: none;">
+    <header class="header">
+      <h1>📬 消息管理</h1>
+      <div class="header-actions">
+        <span id="unreadBadge" class="unread-badge" style="display: none;"></span>
+        <button onclick="changePassword()" class="btn btn-outline btn-sm">修改密码</button>
+        <button onclick="logout()" class="btn btn-outline btn-sm">登出</button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">总消息数</div>
+          <div id="totalCount" class="value">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">未读消息</div>
+          <div id="unreadCount" class="value">-</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="unread">未读</button>
+        <button class="filter-btn" data-filter="read">已读</button>
+      </div>
+
+      <!-- Messages -->
+      <div id="messagesList" class="messages-list">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>加载中...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Password Modal -->
+  <div id="passwordModal" class="modal-overlay">
+    <div class="modal">
+      <h3>修改密码</h3>
+      <form id="passwordForm">
+        <div class="form-group">
+          <label>当前密码</label>
+          <input type="password" id="currentPassword" required>
+        </div>
+        <div class="form-group">
+          <label>新密码</label>
+          <input type="password" id="newPassword" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>确认新密码</label>
+          <input type="password" id="confirmPassword" required minlength="6">
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" onclick="closePasswordModal()" class="btn btn-outline">取消</button>
+          <button type="submit" class="btn btn-primary">确认修改</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const API_URL = window.location.origin;
+    let token = localStorage.getItem('admin_token');
+    let currentFilter = 'all';
+
+    // ============ 初始化 ============
+
+    if (token) {
+      showDashboard();
+    }
+
+    // ============ 登录 ============
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('loginError');
+
+      try {
+        const res = await fetch(`${API_URL}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          token = data.token;
+          localStorage.setItem('admin_token', token);
+          showDashboard();
+        } else {
+          errorEl.textContent = data.error;
+          errorEl.style.display = 'block';
+        }
+      } catch (err) {
+        errorEl.textContent = '网络错误，请稍后再试';
+        errorEl.style.display = 'block';
+      }
+    });
+
+    // ============ 登出 ============
+
+    async function logout() {
+      try {
+        await fetch(`${API_URL}/api/admin/logout`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (err) {}
+
+      token = null;
+      localStorage.removeItem('admin_token');
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+
+    // ============ 显示面板 ============
+
+    async function showDashboard() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      await loadMessages();
+    }
+
+    // ============ 加载消息 ============
+
+    async function loadMessages() {
+      const listEl = document.getElementById('messagesList');
+      listEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
+
+      try {
+        const unreadOnly = currentFilter === 'unread' ? 'true' : 'false';
+        const res = await fetch(`${API_URL}/api/messages?unread_only=${unreadOnly}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.status === 401) {
+          logout();
+          showToast('会话已过期，请重新登录', true);
+          return;
+        }
+
+        const data = await res.json();
+
+        // 更新统计
+        await updateStats();
+
+        // 渲染消息
+        if (data.messages.length === 0) {
+          listEl.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              <p>暂无消息</p>
+            </div>
+          `;
+          return;
+        }
+
+        listEl.innerHTML = data.messages.map(msg => `
+          <div class="message-card ${msg.is_read ? '' : 'unread'}" data-id="${msg.id}">
+            <div class="message-header">
+              <div class="message-sender">
+                <div class="avatar">${msg.name[0]}</div>
+                <div class="sender-info">
+                  <div class="name">${escapeHtml(msg.name)}</div>
+                  <div class="email">${escapeHtml(msg.email)}</div>
+                </div>
+              </div>
+              <div class="message-time">${formatTime(msg.created_at)}</div>
+            </div>
+            <div class="message-body">${escapeHtml(msg.message)}</div>
+            <div class="message-actions">
+              ${!msg.is_read ? `<button onclick="markAsRead(${msg.id})" class="btn btn-outline btn-sm">标为已读</button>` : ''}
+              <button onclick="deleteMessage(${msg.id})" class="btn btn-danger btn-sm">删除</button>
+              <a href="mailto:${escapeHtml(msg.email)}" class="btn btn-outline btn-sm">回复</a>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        listEl.innerHTML = '<div class="empty-state"><p>加载失败，请刷新重试</p></div>';
+      }
+    }
+
+    // ============ 更新统计 ============
+
+    async function updateStats() {
+      try {
+        const allRes = await fetch(`${API_URL}/api/messages?limit=1`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const allData = await allRes.json();
+
+        const unreadRes = await fetch(`${API_URL}/api/messages/unread-count`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const unreadData = await unreadRes.json();
+
+        document.getElementById('totalCount').textContent = allData.pagination.total;
+        document.getElementById('unreadCount').textContent = unreadData.count;
+
+        const badge = document.getElementById('unreadBadge');
+        if (unreadData.count > 0) {
+          badge.textContent = `${unreadData.count} 条未读`;
+          badge.style.display = 'inline';
+        } else {
+          badge.style.display = 'none';
+        }
+      } catch (err) {}
+    }
+
+    // ============ 标记已读 ============
+
+    async function markAsRead(id) {
+      try {
+        await fetch(`${API_URL}/api/messages/${id}/read`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        showToast('已标记为已读');
+        await loadMessages();
+      } catch (err) {
+        showToast('操作失败', true);
+      }
+    }
+
+    // ============ 删除消息 ============
+
+    async function deleteMessage(id) {
+      if (!confirm('确定要删除这条消息吗？')) return;
+
+      try {
+        await fetch(`${API_URL}/api/messages/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        showToast('消息已删除');
+        await loadMessages();
+      } catch (err) {
+        showToast('删除失败', true);
+      }
+    }
+
+    // ============ 筛选 ============
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        loadMessages();
+      });
+    });
+
+    // ============ 修改密码 ============
+
+    function changePassword() {
+      document.getElementById('passwordModal').classList.add('show');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModal').classList.remove('show');
+      document.getElementById('passwordForm').reset();
+    }
+
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const current = document.getElementById('currentPassword').value;
+      const newPass = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      if (newPass !== confirm) {
+        showToast('两次输入的密码不一致', true);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/api/admin/password`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ current_password: current, new_password: newPass })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast('密码已修改，请重新登录');
+          closePasswordModal();
+          setTimeout(() => logout(), 1500);
+        } else {
+          showToast(data.error, true);
+        }
+      } catch (err) {
+        showToast('修改失败', true);
+      }
+    });
+
+    // ============ 工具函数 ============
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatTime(dateStr) {
+      const date = new Date(dateStr + 'Z');
+      const now = new Date();
+      const diff = now - date;
+
+      if (diff < 60000) return '刚刚';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
+
+      return date.toLocaleDateString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${isError ? 'error' : ''} show`;
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

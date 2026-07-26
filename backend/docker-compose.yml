@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  portfolio-api:
+    build: .
+    container_name: portfolio-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      # 持久化数据库数据
+      - ./data:/app/data
+      # 环境变量文件
+      - ./.env:/app/.env:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    # 资源限制（适合 1GB 内存服务器）
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
